@@ -1,69 +1,60 @@
 package org.example;
 
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.InputMismatchException;
-import java.util.Scanner;
 
 public class Main {
     static final String HOST = "outlook.office365.com";
     static final int PORT = 993;
-    static final String EMAIL = "imap.test.2024@outlook.com";
-    static final String PASSWORD = "Testing1!2@3#";
-
-    static BufferedReader reader;
-    static PrintWriter writer;
+//    static final String EMAIL = "imap.test.2024@outlook.com";
+//    static final String PASSWORD = "Testing1!2@3#";
 
 
     public static void main(String[] args) throws IOException {
         Socket socket = SSLSocketFactory.getDefault().createSocket(HOST, PORT);
+        ImapService imapService = new ImapService(new BufferedReader(new InputStreamReader(socket.getInputStream())),
+                new PrintWriter(new OutputStreamWriter(socket.getOutputStream()))
+        );
+        if (!ImapService.isConnected())
+            return;
 
-        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+        //Log in the user
+        while (true) {
+            String email = Menu.getEmail();
+            String password = Menu.getPassword();
 
-        //LOGIN LOOP
-//        while(!LoggedIn){
-//            scanner.nextLine();
-//            ...
-//        }
+            if (!ImapService.logIn(email, password)) {
+                System.out.println("INCORRECT CREDENTIALS, PLEASE TRY AGAIN");
+            } else
+                break;
+        }
 
-//        while (true) {
-//            int selection = getUserInput();
-//
-//        }
         /*
-        * LOG IN MENU
+        * --LOG IN MENU--
         * ENTER USERNAME:
         * ...
         * ENTER PASSWORD:
         * ...
         * ----------------
-        * ACTION MENU
+        * --AUTHENTICATED STATE MENU--
         * SELECT ACTION:
-        * 1. Delete box
-        * 2. Rename box
-        * 3. Create box
+        * 1. Select mailbox
+        * 2. Create mailbox
+        * 3. Rename mailbox
+        * 4. Delete mailbox
         * ...
         * n. LOGOUT
         * ----------------
-        * BOX SELECTION MENU
-        * SELECT BOX:
-        * 1. Box 1
-        * 2. Box 2
-        * 3. Box 3
+        * --SELECT MAILBOX MENU--
+        * SELECT MAILBOX:
+        * 1. Mailbox 1
+        * 2. Mailbox 2
+        * 3. Mailbox 3
         * ...
         * n. BACK
         * ----------------
-        * BOX MENU
+        * --MAILBOX MENU--
         * SELECT EMAIL:
         * 1. Email 1
         * 2. Email 2
@@ -71,11 +62,22 @@ public class Main {
         * ...
         * n. BACK
         * ----------------
-        * EMAIL SCREEN
+        * --EMAIL SCREEN--
         * EMAIL HEADER
         * EMAIL CONTENTS
         * 1. BACK
          */
+
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//        PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+//
+//        writer.print("a1" + " " + "LOGIN " + EMAIL + " " + PASSWORD + "\r\n");
+//        writer.flush();
+//
+//        String line = reader.readLine();
+//        System.out.println(line);
+//        line = reader.readLine();
+//        System.out.println(line);
 
 //        String tag = "a1";
 //        sendCommand(tag, "LOGIN " + EMAIL + " " + PASSWORD);
@@ -98,32 +100,5 @@ public class Main {
 //        readResponse(tag);
 
         socket.close();
-    }
-
-    public static void readResponse(String tag) throws IOException {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
-            if (line.startsWith(tag)) {
-                break;
-            }
-        }
-    }
-
-    public static void sendCommand(String tag, String command) {
-        writer.print(tag + " " + command + "\r\n");
-        writer.flush();
-    }
-
-    public static int getUserInput() {
-        Scanner scanner = new Scanner(System.in);
-        int selection;
-        try {
-            selection = scanner.nextInt();
-        } catch (Exception e) {
-            selection = -1;
-        }
-
-        return selection;
     }
 }
