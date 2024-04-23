@@ -26,11 +26,27 @@ public class ImapService {
         sendCommand(currentTag, "LOGIN " + email + " " + password);
         var response = readResponse(currentTag);
 
-        isLoggedIn = response.size() == 1 && ResponseInterpreter.checkLogInResponse(response.get(0), currentTag);
+        isLoggedIn = response.size() == 1 && ResponseInterpreter.checkLogInResponse(currentTag, response.get(0));
         return isLoggedIn;
     }
 
-    public static ArrayList<String> readResponse(String tag) {
+    public static ArrayList<String> getMailboxes() {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "LIST \"\" \"*\"");
+        var response = readResponse(currentTag);
+
+        return ResponseInterpreter.getMailboxNames(currentTag, response);
+    }
+
+    public static boolean selectMailbox(String mailboxName) {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "SELECT \"" + mailboxName + "\"");
+        var response = readResponse(currentTag);
+
+        return ResponseInterpreter.checkSelectResponse(currentTag, response);
+    }
+
+    private static ArrayList<String> readResponse(String tag) {
         ArrayList<String> response = new ArrayList<>();
         String line;
         do {
@@ -44,7 +60,7 @@ public class ImapService {
         return response;
     }
 
-    public static void sendCommand(String tag, String command) {
+    private static void sendCommand(String tag, String command) {
         writer.print(tag + " " + command + "\r\n");
         writer.flush();
     }
