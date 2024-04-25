@@ -31,7 +31,7 @@ public class ResponseInterpreter {
     }
 
     public static boolean checkSelectResponse(String tag, ArrayList<String> response) {
-        return response.getLast().startsWith(tag + " OK");
+        return response.get(response.size() - 1).startsWith(tag + " OK");
 
 //        * 1 EXISTS
 //        * 1 RECENT

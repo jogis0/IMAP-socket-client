@@ -33,7 +33,8 @@ public class Menu {
         for (String mailbox : mailboxes) {
             System.out.println(n++ + ". " + mailbox);
         }
-        System.out.println(n + ". Back");
+        System.out.println("--------------------");
+        System.out.println(n + ". BACK");
 
         return new Scanner(System.in).nextInt();
     }

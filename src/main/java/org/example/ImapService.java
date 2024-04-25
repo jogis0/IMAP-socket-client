@@ -42,8 +42,18 @@ public class ImapService {
         String currentTag = tag.getTag();
         sendCommand(currentTag, "SELECT \"" + mailboxName + "\"");
         var response = readResponse(currentTag);
+        //TODO: Check whether you can select mailbox in selected state
 
         return ResponseInterpreter.checkSelectResponse(currentTag, response);
+    }
+
+    public static boolean getMailboxEmails() {
+        String currentTag = tag.getTag();
+        //TODO: Write a FETCH command to get all email subject headers
+//        sendCommand(currentTag, "FETCH \"" + mailboxName + "\"");
+//        var response = readResponse(currentTag);
+
+        return false;
     }
 
     private static ArrayList<String> readResponse(String tag) {
