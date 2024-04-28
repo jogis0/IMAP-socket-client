@@ -30,6 +30,10 @@ public class ImapService {
         return isLoggedIn;
     }
 
+    //TODO: Implement create, rename and delete mailbox methods
+
+    //TODO: Implement subscribe and unsubscribe mailbox methods
+
     public static ArrayList<String> getMailboxes() {
         String currentTag = tag.getTag();
         sendCommand(currentTag, "LIST \"\" \"*\"");
@@ -47,13 +51,28 @@ public class ImapService {
         return ResponseInterpreter.checkSelectResponse(currentTag, response);
     }
 
-    public static boolean getMailboxEmails() {
-        String currentTag = tag.getTag();
-        //TODO: Write a FETCH command to get all email subject headers
-//        sendCommand(currentTag, "FETCH \"" + mailboxName + "\"");
-//        var response = readResponse(currentTag);
+    public static ArrayList<Email> getMailboxEmails() {
+        ArrayList<ArrayList<String>> responseList = new ArrayList<>();
+        var emailIds = getEmailIds();
+        if (emailIds == null)
+            return new ArrayList<Email>();
 
-        return false;
+        for (String emailNum : getEmailIds()) {
+            String currentTag = tag.getTag();
+            sendCommand(currentTag, "FETCH " + emailNum + " (BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)] BODY.PEEK[TEXT])");
+            var response = readResponse(currentTag);
+            responseList.add(response);
+        }
+
+        return ResponseInterpreter.getEmails(responseList);
+    }
+
+    private static ArrayList<String> getEmailIds() {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "SEARCH ALL");
+        var response = readResponse(currentTag);
+
+        return ResponseInterpreter.parseSearchResponse(currentTag, response);
     }
 
     private static ArrayList<String> readResponse(String tag) {

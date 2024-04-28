@@ -10,6 +10,6 @@ public class Tag {
     }
 
     public static String getTag() {
-        return prefix + String.format("%03d", count);
+        return prefix + String.format("%03d", count++);
     }
 }

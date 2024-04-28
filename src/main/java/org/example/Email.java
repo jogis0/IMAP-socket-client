@@ -1,10 +1,12 @@
 package org.example;
 
 public class Email {
-    public static String subject;
-    public static String content;
+    public String sender;
+    public String subject;
+    public String content;
 
-    public Email(String subject, String content) {
+    public Email(String sender, String subject, String content) {
+        this.sender = sender;
         this.subject = subject;
         this.content = content;
     }

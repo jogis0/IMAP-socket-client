@@ -14,116 +14,98 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Socket socket = SSLSocketFactory.getDefault().createSocket(HOST, PORT);
-//        ImapService imapService = new ImapService(new BufferedReader(new InputStreamReader(socket.getInputStream())),
-//                new PrintWriter(new OutputStreamWriter(socket.getOutputStream()))
-//        );
-//        if (!ImapService.isConnected())
-//            return;
-//
-//        //Log in the user
-//        while (true) {
-//            String email = Menu.getEmail();
-//            String password = Menu.getPassword();
-//
-//            if (!ImapService.logIn(email, password)) {
-//                System.out.println("INCORRECT CREDENTIALS, PLEASE TRY AGAIN");
-//            } else
-//                break;
-//        }
-//
-//        while (true) {
-//            int selection = Menu.authenticatedStateMenu();
-//
-//            switch (selection) {
-//                case 1:
-//                    var mailboxes = ImapService.getMailboxes();
-//                    int mailboxSelection = Menu.selectMailboxMenu(mailboxes);
-//                    //TODO: Add check if user hasn't selected something out of bounds
-//                    if (mailboxSelection == mailboxes.size() + 1) {
-//                        break;
-//                    }
-//                    ImapService.selectMailbox(mailboxes.get(mailboxSelection - 1));
-//
-//
-//                    break;
-//                case 2:
-//                    // Create mailbox
-//                    break;
-//            }
-//        }
+        ImapService imapService = new ImapService(new BufferedReader(new InputStreamReader(socket.getInputStream())),
+                new PrintWriter(new OutputStreamWriter(socket.getOutputStream()))
+        );
+        if (!ImapService.isConnected())
+            return;
 
-        /*
-        * --LOG IN MENU--
-        * ENTER USERNAME:
-        * ...
-        * ENTER PASSWORD:
-        * ...
-        * ----------------
-        * --AUTHENTICATED STATE MENU--
-        * SELECT ACTION:
-        * 1. Select mailbox
-        * 2. Create mailbox
-        * 3. Rename mailbox
-        * 4. Delete mailbox
-        * ...
-        * n. LOGOUT
-        * ----------------
-        * --SELECT MAILBOX MENU--
-        * SELECT MAILBOX:
-        * 1. Mailbox 1
-        * 2. Mailbox 2
-        * 3. Mailbox 3
-        * ...
-        * n. BACK
-        * ----------------
-        * --MAILBOX MENU--
-        * SELECT EMAIL:
-        * 1. Email 1
-        * 2. Email 2
-        * 3. Email 3
-        * ...
-        * n. BACK
-        * ----------------
-        * --EMAIL SCREEN--
-        * EMAIL HEADER
-        * EMAIL CONTENTS
-        * 1. BACK
-         */
+        //Log in the user
+        while (true) {
+            String email = Menu.getEmail();
+            String password = Menu.getPassword();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            if (!ImapService.logIn(EMAIL, PASSWORD)) {
+                System.out.println("INCORRECT CREDENTIALS, PLEASE TRY AGAIN");
+            } else
+                break;
+        }
+        boolean appRunning = true;
+        while (appRunning) {
+            int selection = Menu.authenticatedStateMenu();
 
-        sendCommand(writer, "a1", "LOGIN " + EMAIL + " " + PASSWORD);
-        readResponse(reader, "a1");
+            switch (selection) {
+                case 1:
+                    var mailboxes = ImapService.getMailboxes();
+                    int mailboxSelection = Menu.selectMailboxMenu(mailboxes);
+                    if (mailboxSelection == mailboxes.size() + 1) {
+                        break;
+                    }
 
-        sendCommand(writer, "a2", "LIST \"\" \"*\"");
-        readResponse(reader, "a2");
+                    if (mailboxSelection > mailboxes.size() + 1) {
+                        System.out.println("No such choice, choose again.");
+                        break;
+                    }
 
-        sendCommand(writer, "a3", "SELECT \"TestFolder\"");
-        readResponse(reader, "a3");
+                    ImapService.selectMailbox(mailboxes.get(mailboxSelection - 1));
 
-        sendCommand(writer, "a4", "SEARCH ALL");
-        readResponse(reader, "a4");
+                    var emails = ImapService.getMailboxEmails();
+                    int emailSelection = Menu.selectEmailMenu(emails);
 
-//        String tag = "a1";
-//        sendCommand(tag, "LOGIN " + EMAIL + " " + PASSWORD);
+                    if (emailSelection == emails.size() + 1) {
+                        break;
+                    }
+                    if (emailSelection > emails.size() + 1) {
+                        System.out.println("No such choice, choose again.");
+                        break;
+                    }
+
+                    int backSelection = Menu.selectedEmailMenu(emails.get(emailSelection - 1));
+                    if (backSelection == 1) {
+                    }
+                    else {
+                        System.out.println("No such choice, choose again.");
+                    }
+
+                    break;
+                case 2:
+                    // Create mailbox
+                    break;
+                case 3:
+                    // Rename mailbox
+                    break;
+                case 4:
+                    //Delete mailbox
+                    break;
+                case 5:
+                    System.out.println("Goodbye!");
+                    appRunning = false;
+                    break;
+                default:
+                    System.out.println("No such choice, choose again.");
+            }
+        }
+
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//        PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 //
-//        readResponse(tag);
+//        sendCommand(writer, "a1", "LOGIN " + EMAIL + " " + PASSWORD);
+//        readResponse(reader, "a1");
 //
-//        tag = "a2";
-//        sendCommand(tag, "SELECT Inbox");
+//        sendCommand(writer, "a2", "LIST \"\" \"*\"");
+//        readResponse(reader, "a2");
 //
-//        readResponse(tag);
+//        sendCommand(writer, "a3", "SELECT \"Inbox\"");
+//        readResponse(reader, "a3");
 //
-//        tag = "a3";
-//        sendCommand(tag, "SEARCH ALL");
+//        sendCommand(writer, "a4", "SEARCH ALL");
+//        readResponse(reader, "a4");
 //
-//        readResponse(tag);
+//        sendCommand(writer, "a5", "FETCH 2 (BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)] BODY.PEEK[TEXT])");
+//        readResponse(reader, "a5");
 //
-//        tag = "a4";
-//        sendCommand(tag, "FETCH 2 (BODY[HEADER])");
-//
-//        readResponse(tag);
+//        sendCommand(writer, "a6", "FETCH 2 (BODY.PEEK[TEXT])");
+//        readResponse(reader, "a6");
 
         socket.close();
     }
