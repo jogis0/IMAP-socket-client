@@ -30,7 +30,6 @@ public class ImapService {
         return isLoggedIn;
     }
 
-    //TODO: Implement create, rename and delete mailbox methods
     public static boolean createMailbox(String mailboxName) {
         String currentTag = tag.getTag();
         sendCommand(currentTag, "CREATE " + mailboxName);
@@ -68,7 +67,7 @@ public class ImapService {
         sendCommand(currentTag, "LSUB \"\" \"*\"");
         var response = readResponse(currentTag);
 
-        return ResponseInterpreter.getMailboxNames(currentTag, response, ".");
+        return ResponseInterpreter.getMailboxNames(currentTag, response);
     }
 
     public static boolean unsubscribeFromMailbox(String mailboxName) {
@@ -84,14 +83,13 @@ public class ImapService {
         sendCommand(currentTag, "LIST \"\" \"*\"");
         var response = readResponse(currentTag);
 
-        return ResponseInterpreter.getMailboxNames(currentTag, response, "/");
+        return ResponseInterpreter.getMailboxNames(currentTag, response);
     }
 
     public static boolean selectMailbox(String mailboxName) {
         String currentTag = tag.getTag();
         sendCommand(currentTag, "SELECT \"" + mailboxName + "\"");
         var response = readResponse(currentTag);
-        //TODO: Check whether you can select mailbox in selected state
 
         return ResponseInterpreter.checkSelectResponse(currentTag, response);
     }

@@ -23,7 +23,8 @@ public class Menu {
         System.out.println("4. Delete mailbox");
         System.out.println("5. Subscribe to mailbox");
         System.out.println("6. Unsubscribe from mailbox");
-        System.out.println("7. Log out");
+        System.out.println("7. Select subscribed mailbox");
+        System.out.println("8. Log out");
 
         return new Scanner(System.in).nextInt();
     }

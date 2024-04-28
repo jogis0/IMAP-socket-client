@@ -8,9 +8,6 @@ import java.util.ArrayList;
 public class Main {
     static final String HOST = "outlook.office365.com";
     static final int PORT = 993;
-    static final String EMAIL = "imap.test.2024@outlook.com";
-    static final String PASSWORD = "Testing1!2@3#";
-
 
     public static void main(String[] args) throws IOException {
         Socket socket = SSLSocketFactory.getDefault().createSocket(HOST, PORT);
@@ -25,7 +22,7 @@ public class Main {
             String email = Menu.getEmail();
             String password = Menu.getPassword();
 
-            if (!ImapService.logIn(EMAIL, PASSWORD)) {
+            if (!ImapService.logIn(email, password)) {
                 System.out.println("Incorrect credentials, please try again.");
             } else
                 break;
@@ -143,6 +140,38 @@ public class Main {
                         System.out.println("Could not unsubscribe from mailbox.");
                     break;
                 case 7:
+                    var subMailboxes = ImapService.getSubscribedMailboxes();
+                    int subMailboxSelection = Menu.selectMailboxMenu(subMailboxes);
+                    if (subMailboxSelection == subMailboxes.size() + 1) {
+                        break;
+                    }
+
+                    if (subMailboxSelection > subMailboxes.size() + 1) {
+                        System.out.println("No such choice, choose again.");
+                        break;
+                    }
+
+                    ImapService.selectMailbox(subMailboxes.get(subMailboxSelection - 1));
+
+                    var subEmails = ImapService.getMailboxEmails();
+                    int subEmailSelection = Menu.selectEmailMenu(subEmails);
+
+                    if (subEmailSelection == subEmails.size() + 1) {
+                        break;
+                    }
+                    if (subEmailSelection > subEmails.size() + 1) {
+                        System.out.println("No such choice, choose again.");
+                        break;
+                    }
+
+                    int subBackSelection = Menu.selectedEmailMenu(subEmails.get(subEmailSelection - 1));
+                    if (subBackSelection == 1) {
+                    }
+                    else {
+                        System.out.println("No such choice, choose again.");
+                    }
+                    break;
+                case 8:
                     //LOG OUT
                     System.out.println("Goodbye!");
                     appRunning = false;
@@ -152,45 +181,6 @@ public class Main {
                     break;
             }
         }
-
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//        PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-//
-//        sendCommand(writer, "a1", "LOGIN " + EMAIL + " " + PASSWORD);
-//        readResponse(reader, "a1");
-//
-//        sendCommand(writer, "a2", "LIST \"\" \"*\"");
-//        readResponse(reader, "a2");
-//
-//        sendCommand(writer, "a3", "SELECT \"Inbox\"");
-//        readResponse(reader, "a3");
-//
-//        sendCommand(writer, "a4", "SEARCH ALL");
-//        readResponse(reader, "a4");
-//
-//        sendCommand(writer, "a5", "FETCH 2 (BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)] BODY.PEEK[TEXT])");
-//        readResponse(reader, "a5");
-//
-//        sendCommand(writer, "a6", "FETCH 2 (BODY.PEEK[TEXT])");
-//        readResponse(reader, "a6");
-
         socket.close();
-    }
-
-    private static void readResponse(BufferedReader reader, String tag) {
-        String line;
-        do {
-            try {
-                line = reader.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println(line);
-        } while (!line.startsWith(tag) && line != null);
-    }
-
-    private static void sendCommand(PrintWriter writer, String tag, String command) {
-        writer.print(tag + " " + command + "\r\n");
-        writer.flush();
     }
 }
