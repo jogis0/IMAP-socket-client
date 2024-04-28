@@ -26,20 +26,65 @@ public class ImapService {
         sendCommand(currentTag, "LOGIN " + email + " " + password);
         var response = readResponse(currentTag);
 
-        isLoggedIn = response.size() == 1 && ResponseInterpreter.checkLogInResponse(currentTag, response.get(0));
+        isLoggedIn = response.size() == 1 && ResponseInterpreter.checkSimpleResponse(currentTag, response.get(0));
         return isLoggedIn;
     }
 
     //TODO: Implement create, rename and delete mailbox methods
+    public static boolean createMailbox(String mailboxName) {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "CREATE " + mailboxName);
+        var response = readResponse(currentTag);
 
-    //TODO: Implement subscribe and unsubscribe mailbox methods
+        return ResponseInterpreter.checkSimpleResponse(currentTag, response.get(0));
+    }
+
+    public static boolean renameMailbox(String oldMailboxName, String newMailboxName) {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "RENAME " + oldMailboxName + " " + newMailboxName);
+        var response = readResponse(currentTag);
+
+        return ResponseInterpreter.checkSimpleResponse(currentTag, response.get(0));
+    }
+
+    public static boolean deleteMailbox(String mailboxName) {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "DELETE " + mailboxName);
+        var response = readResponse(currentTag);
+
+        return ResponseInterpreter.checkSimpleResponse(currentTag, response.get(0));
+    }
+
+    public static boolean subscribeToMailbox(String mailboxName) {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "SUBSCRIBE " + mailboxName);
+        var response = readResponse(currentTag);
+
+        return ResponseInterpreter.checkSimpleResponse(currentTag, response.get(0));
+    }
+
+    public static ArrayList<String> getSubscribedMailboxes() {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "LSUB \"\" \"*\"");
+        var response = readResponse(currentTag);
+
+        return ResponseInterpreter.getMailboxNames(currentTag, response, ".");
+    }
+
+    public static boolean unsubscribeFromMailbox(String mailboxName) {
+        String currentTag = tag.getTag();
+        sendCommand(currentTag, "UNSUBSCRIBE " + mailboxName);
+        var response = readResponse(currentTag);
+
+        return ResponseInterpreter.checkSimpleResponse(currentTag, response.get(0));
+    }
 
     public static ArrayList<String> getMailboxes() {
         String currentTag = tag.getTag();
         sendCommand(currentTag, "LIST \"\" \"*\"");
         var response = readResponse(currentTag);
 
-        return ResponseInterpreter.getMailboxNames(currentTag, response);
+        return ResponseInterpreter.getMailboxNames(currentTag, response, "/");
     }
 
     public static boolean selectMailbox(String mailboxName) {

@@ -4,18 +4,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ResponseInterpreter {
-    public static boolean checkLogInResponse(String tag, String response) {
+    public static boolean checkSimpleResponse(String tag, String response) {
         return response.startsWith(tag + " OK");
     }
 
-    public static ArrayList<String> getMailboxNames(String tag, ArrayList<String> response) {
+
+    public static ArrayList<String> getMailboxNames(String tag, ArrayList<String> response, String seperator) {
         ArrayList<String> mailboxNames = new ArrayList<>();
         for (String line : response) {
             if (line.startsWith(tag + " OK")) {
                 break;
             }
 
-            mailboxNames.add(line.substring(line.indexOf("\"/\"") + 4)); //4 because "/" is 3 and space is another 1
+            mailboxNames.add(line.substring(line.indexOf("\"" + seperator + "\"") + 4)); //4 because "/" is 3 and space is another 1
         }
 
 //        * LIST (\HasNoChildren) "/" Archyvas

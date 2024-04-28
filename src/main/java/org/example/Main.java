@@ -26,7 +26,7 @@ public class Main {
             String password = Menu.getPassword();
 
             if (!ImapService.logIn(EMAIL, PASSWORD)) {
-                System.out.println("INCORRECT CREDENTIALS, PLEASE TRY AGAIN");
+                System.out.println("Incorrect credentials, please try again.");
             } else
                 break;
         }
@@ -36,6 +36,7 @@ public class Main {
 
             switch (selection) {
                 case 1:
+                    //SELECT MAILBOX
                     var mailboxes = ImapService.getMailboxes();
                     int mailboxSelection = Menu.selectMailboxMenu(mailboxes);
                     if (mailboxSelection == mailboxes.size() + 1) {
@@ -69,20 +70,86 @@ public class Main {
 
                     break;
                 case 2:
-                    // Create mailbox
+                    //CREATE MAILBOX
+                    String mailboxName = Menu.getNewMailboxName();
+                    if (ImapService.createMailbox(mailboxName))
+                        System.out.println("Mailbox created successfully!");
+                    else
+                        System.out.println("Could not create mailbox.");
                     break;
                 case 3:
-                    // Rename mailbox
+                    //RENAME MAILBOX
+                    var allRenameMailboxes = ImapService.getMailboxes();
+                    int mailboxRenameSelection = Menu.selectMailboxMenu(allRenameMailboxes);
+                    if (mailboxRenameSelection == allRenameMailboxes.size() + 1) {
+                        break;
+                    }
+
+                    if (mailboxRenameSelection > allRenameMailboxes.size() + 1) {
+                        System.out.println("No such choice, choose again.");
+                        break;
+                    }
+
+                    var newMailboxName = Menu.getNewMailboxName();
+
+                    if (ImapService.renameMailbox(allRenameMailboxes.get(mailboxRenameSelection - 1), newMailboxName))
+                        System.out.println("Mailbox renamed successfully!");
+                    else
+                        System.out.println("Could not rename mailbox.");
                     break;
                 case 4:
-                    //Delete mailbox
+                    //DELETE MAILBOX
+                    var allDeleteMailboxes = ImapService.getMailboxes();
+                    int mailboxDeleteSelection = Menu.selectMailboxMenu(allDeleteMailboxes);
+                    if (mailboxDeleteSelection == allDeleteMailboxes.size() + 1) {
+                        break;
+                    }
+
+                    if (mailboxDeleteSelection > allDeleteMailboxes.size() + 1) {
+                        System.out.println("No such choice, choose again.");
+                        break;
+                    }
+
+                    if (ImapService.deleteMailbox(allDeleteMailboxes.get(mailboxDeleteSelection - 1)))
+                        System.out.println("Mailbox deleted successfully!");
+                    else
+                        System.out.println("Could not delete mailbox.");
                     break;
                 case 5:
+                    //SUBSCRIBE
+                    String subscribeMailboxName = Menu.getSubscribeMailboxName();
+                    if (ImapService.subscribeToMailbox(subscribeMailboxName))
+                        System.out.println("Mailbox subscribed successfully!");
+                    else
+                        System.out.println("Could not subscribe to mailbox.");
+                    break;
+                case 6:
+                    //UNSUBSCRIBE
+                    var subscribedMailboxes = ImapService.getSubscribedMailboxes();
+                    int unsubscribeSelection = Menu.selectMailboxMenu(subscribedMailboxes);
+
+                    if (unsubscribeSelection == subscribedMailboxes.size() + 1) {
+                        break;
+                    }
+
+                    if (unsubscribeSelection > subscribedMailboxes.size() + 1) {
+                        System.out.println("No such choice, choose again.");
+                        break;
+                    }
+
+                    if (ImapService.unsubscribeFromMailbox(subscribedMailboxes.get(unsubscribeSelection - 1)))
+                        System.out.println("Mailbox unsubscribed successfully!");
+                    else
+                        System.out.println("Could not unsubscribe from mailbox.");
+                    break;
+                case 7:
+                    //LOG OUT
                     System.out.println("Goodbye!");
                     appRunning = false;
                     break;
                 default:
                     System.out.println("No such choice, choose again.");
+                    break;
             }
         }
 

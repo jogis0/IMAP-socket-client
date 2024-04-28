@@ -4,46 +4,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Menu {
-    /*
-     * --LOG IN MENU--
-     * ENTER USERNAME:
-     * ...
-     * ENTER PASSWORD:
-     * ...
-     * ----------------
-     * --AUTHENTICATED STATE MENU--
-     * SELECT ACTION:
-     * 1. Select mailbox
-     * 2. Create mailbox
-     * 3. Rename mailbox
-     * 4. Delete mailbox
-     * 5. Subscribe to mailbox
-     * 6. Unsubscribe from mailbox?
-     * ...
-     * n. LOGOUT
-     * ----------------
-     * --SELECT MAILBOX MENU--
-     * SELECT MAILBOX:
-     * 1. Mailbox 1
-     * 2. Mailbox 2
-     * 3. Mailbox 3
-     * ...
-     * n. BACK
-     * ----------------
-     * --MAILBOX MENU--
-     * SELECT EMAIL:
-     * 1. Email 1
-     * 2. Email 2
-     * 3. Email 3
-     * ...
-     * n. BACK
-     * ----------------
-     * --EMAIL SCREEN--
-     * EMAIL HEADER
-     * EMAIL CONTENTS
-     * 1. BACK
-     */
-
     public static String getEmail() {
         System.out.println("ENTER EMAIL:");
         return new Scanner(System.in).nextLine();
@@ -61,7 +21,9 @@ public class Menu {
         System.out.println("2. Create mailbox");
         System.out.println("3. Rename mailbox");
         System.out.println("4. Delete mailbox");
-        System.out.println("5. LOGOUT");
+        System.out.println("5. Subscribe to mailbox");
+        System.out.println("6. Unsubscribe from mailbox");
+        System.out.println("7. Log out");
 
         return new Scanner(System.in).nextInt();
     }
@@ -74,7 +36,7 @@ public class Menu {
             System.out.println(n++ + ". " + mailbox);
         }
         System.out.println("--------------------");
-        System.out.println(n + ". BACK");
+        System.out.println(n + ". Back");
 
         return new Scanner(System.in).nextInt();
     }
@@ -90,7 +52,7 @@ public class Menu {
         }
 
         System.out.println("--------------------");
-        System.out.println(n + ". BACK");
+        System.out.println(n + ". Back");
 
         return new Scanner(System.in).nextInt();
     }
@@ -102,8 +64,18 @@ public class Menu {
         System.out.println("SUBJECT: " + email.subject);
         System.out.println(email.content);
         System.out.println("--------------------");
-        System.out.println("1. BACK");
+        System.out.println("1. Back");
 
         return new Scanner(System.in).nextInt();
+    }
+
+    public static String getNewMailboxName() {
+        System.out.println("ENTER NEW MAILBOX NAME:");
+        return new Scanner(System.in).nextLine();
+    }
+
+    public static String getSubscribeMailboxName() {
+        System.out.println("ENTER MAILBOX NAME TO SUBSCRIBE:");
+        return new Scanner(System.in).nextLine();
     }
 }
