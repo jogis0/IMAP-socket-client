@@ -2,6 +2,8 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
 
 public class ResponseInterpreter {
     public static boolean checkSimpleResponse(String tag, String response) {
@@ -80,34 +82,111 @@ public class ResponseInterpreter {
 //                --000000000000485dbd0616d8a22d--
 //        )
 //        a5 OK FETCH completed.
+
+        //Failas atrodo taip
+//        Content-Type: application/pdf; name="T0814u.pdf"
+//        Content-Disposition: attachment; filename="T0814u.pdf"
+//        Content-Transfer-Encoding: base64
+//        Content-ID: <f_lvkni1y00>
+//        X-Attachment-Id: f_lvkni1y00
     }
 
+    //Very bad method here, just be happy that it works
     private static Email parseEmail(ArrayList<String> response) {
-//        for (String line : response) {
-//            System.out.println(line);
-//        }
         if (response.get(response.size() - 1).contains("OK")) {
-            String sender = response.get(1).substring(response.get(1).indexOf("<") + 1, response.get(1).indexOf(">"));
-            String subject = response.get(2).substring(9);
-            StringBuilder text = new StringBuilder();
+            Email email = parseEmailText(response);
 
-            boolean inTextField = false;
-            for (String line : response.subList(5, response.size() - 1)) {
-                if (line.startsWith("--") && inTextField == false) {
-                    inTextField = true;
-                    continue;
-                }
-                if (line.startsWith("--") && inTextField == true) {
-                    break;
-                }
-                if (line.startsWith("Content-"))
-                    continue;
-                text.append(line + System.getProperty("line.separator"));
-            }
+            //Getting attached files and file data from the response
+            int textSectionEndIndex = response.indexOf(findTextSectionEnd(response));
+            var responseWithoutText = response.subList(textSectionEndIndex + 1, response.size() - 1); //+ 1 because we want to skip the marker line
 
-            return new Email(sender, subject, text.toString());
+            var files = parseFiles(responseWithoutText);
+            if (files.size() != 0)
+                email.files = files;
+            return email;
         }
 
+        return null;
+    }
+
+    private static Email parseEmailText(ArrayList<String> response) {
+        String sender = null;
+        String subject = null;
+        StringBuilder text = new StringBuilder();
+
+        //Getting email text from the response
+        boolean inTextSection = false;
+
+        for (String line : response) {
+            if (line.startsWith("From: ") && sender == null) {
+                sender = line.substring(line.indexOf("<") + 1, line.indexOf(">"));
+            }
+            if (line.startsWith("Subject: ") && subject == null) {
+                subject = line.substring(9);
+            }
+
+            if (line.startsWith("Content-Type: text/plain;") && inTextSection == false) {
+                inTextSection = true;
+                continue;
+            }
+            if (line.startsWith("--") && inTextSection == true) {
+                break;
+            }
+
+            if (inTextSection) {
+                text.append(line + System.getProperty("line.separator"));
+            }
+        }
+
+        if (sender == null || subject == null) {
+            return null;
+        }
+        return new Email(sender, subject, text.toString());
+    }
+
+    private static ArrayList<FileInfo> parseFiles(List<String> response) {
+        ArrayList<FileInfo> files = new ArrayList<>();
+
+        String fileName = null;
+        StringBuilder data = new StringBuilder();
+
+        boolean dataReadingMode = false;
+        for (String line : response) {
+            if (line.startsWith("Content-Disposition:")) {
+                fileName = line.substring(line.indexOf("\"") + 1, line.lastIndexOf("\""));
+                continue;
+            }
+
+            if (line.startsWith("X-Attachment-Id:") && dataReadingMode == false) {
+                //Start reading data
+                dataReadingMode = true;
+                continue;
+            }
+
+            if (line.startsWith("--") && dataReadingMode == true) {
+                files.add(new FileInfo(fileName, Base64.getDecoder().decode(data.toString())));
+
+                fileName = null;
+                data = new StringBuilder();
+                dataReadingMode = false;
+                continue;
+            }
+
+            if (dataReadingMode) {
+                data.append(line);
+            }
+        }
+        return files;
+    }
+
+    //Helper method to find the end of the body text section
+    //It's needed to find the start of the section about files and file data
+    private static String findTextSectionEnd(ArrayList<String> data) {
+        for (String item : data) {
+            if (item.startsWith("--") && item.endsWith("--")) {
+                return item;
+            }
+        }
         return null;
     }
 }

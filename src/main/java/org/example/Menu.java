@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Scanner;
 
 public class Menu {
@@ -65,7 +66,22 @@ public class Menu {
         System.out.println("SUBJECT: " + email.subject);
         System.out.println(email.content);
         System.out.println("--------------------");
-        System.out.println("1. Back");
+        if (email.files != null) {
+            System.out.println("ATTACHMENTS:");
+            for (FileInfo file : email.files) {
+                System.out.println(file.name);
+            }
+            System.out.println("--------------------");
+            if (email.files.size() > 1) {
+                System.out.println("1. Download all attachments");
+                System.out.println("2. Back");
+            } else if (email.files.size() == 1) {
+                System.out.println("1. Download attachment");
+                System.out.println("2. Back");
+            }
+        } else {
+            System.out.println("1. Back");
+        }
 
         return new Scanner(System.in).nextInt();
     }

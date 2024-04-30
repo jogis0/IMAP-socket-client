@@ -128,7 +128,7 @@ public class ImapService {
                 throw new RuntimeException(e);
             }
             response.add(line);
-        } while (!line.startsWith(tag) && line != null);
+        } while (!line.startsWith(tag + " ") && line != null);
         return response;
     }
 
